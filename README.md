@@ -164,10 +164,10 @@ It enables high-quality peer-to-peer video communication with secure authenticat
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/zetra.git
+git clone https://github.com/abhinxvz/webrtc_backend_zetra.git
 
 # Move into the directory
-cd zetra
+cd webrtc_backend_zetra
 
 # Install dependencies
 npm install
@@ -182,6 +182,4 @@ npm install
 # TURN_SERVER_CREDENTIAL=
 
 # Run the development server
-npm run dev
-
 npm run dev
