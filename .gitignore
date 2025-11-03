@@ -2,7 +2,6 @@
 node_modules
 /.pnp
 .pnp.js
-
 # testing
 /coverage
 
@@ -25,10 +24,11 @@ yarn-error.log*
 # local env files
 .env
 .env*.local
-
+.env.example
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.vscode

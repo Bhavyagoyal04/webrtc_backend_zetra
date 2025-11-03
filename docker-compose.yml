@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: zetra-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - zetra-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: zetra-backend
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+      - MONGO_URI=mongodb://admin:admin123@mongodb:27017/zetra?authSource=admin
+      - JWT_SECRET=your_super_secret_jwt_key_change_in_production
+      - SOCKET_URL=http://localhost:4000
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
+    depends_on:
+      - mongodb
+    volumes:
+      - ./server:/app/server
+      - /app/node_modules
+    networks:
+      - zetra-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: zetra-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
+      - SOCKET_URL=http://localhost:4000
+    depends_on:
+      - backend
+    networks:
+      - zetra-network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  zetra-network:
+    driver: bridge
