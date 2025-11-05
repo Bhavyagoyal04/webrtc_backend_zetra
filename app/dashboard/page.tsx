@@ -90,6 +90,18 @@ export default function Dashboard() {
           <div className="flex items-center gap-4">
             <span className="text-gray-700">Welcome, {username}</span>
             <button
+              onClick={() => router.push('/history')}
+              className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition"
+            >
+              Call History
+            </button>
+            <button
+              onClick={() => router.push('/profile')}
+              className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition"
+            >
+              Profile
+            </button>
+            <button
               onClick={handleLogout}
               className="px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition"
             >
