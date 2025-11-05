@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { register, login } from '../controllers/authController';
+import { register, login, changePassword } from '../controllers/authController';
 import { validateRegistration, validateLogin } from '../middleware/validation';
 import { rateLimiter } from '../middleware/rateLimiter';
+import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
 
@@ -14,5 +15,6 @@ const authLimiter = rateLimiter({
 
 router.post('/register', authLimiter, validateRegistration, register);
 router.post('/login', authLimiter, validateLogin, login);
+router.post('/change-password', authenticateToken, changePassword);
 
 export default router;
