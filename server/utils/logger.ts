@@ -1,58 +1,47 @@
 type LogLevel = 'info' | 'warn' | 'error' | 'debug';
 
-interface LogEntry {
-  timestamp: string;
-  level: LogLevel;
-  message: string;
-  meta?: any;
+interface LogData {
+  [key: string]: any;
 }
 
 class Logger {
-  private formatTimestamp(): string {
-    return new Date().toISOString();
-  }
-
-  private formatLog(level: LogLevel, message: string, meta?: any): LogEntry {
-    return {
-      timestamp: this.formatTimestamp(),
-      level,
+  private log(level: LogLevel, message: string, data?: LogData) {
+    const timestamp = new Date().toISOString();
+    const logEntry = {
+      timestamp,
+      level: level.toUpperCase(),
       message,
-      ...(meta && { meta }),
+      ...(data && { data }),
     };
-  }
 
-  private output(logEntry: LogEntry): void {
-    const { timestamp, level, message, meta } = logEntry;
-    const metaStr = meta ? ` ${JSON.stringify(meta)}` : '';
-    
-    const colorCodes: Record<LogLevel, string> = {
-      info: '\x1b[36m',    // Cyan
-      warn: '\x1b[33m',    // Yellow
-      error: '\x1b[31m',   // Red
-      debug: '\x1b[35m',   // Magenta
+    const colorCodes = {
+      info: '\x1b[36m',
+      warn: '\x1b[33m',
+      error: '\x1b[31m',
+      debug: '\x1b[35m',
     };
-    
-    const reset = '\x1b[0m';
+
+    const resetColor = '\x1b[0m';
     const color = colorCodes[level];
-    
-    console.log(`${color}[${timestamp}] [${level.toUpperCase()}]${reset} ${message}${metaStr}`);
+
+    console.log(`${color}[${logEntry.level}]${resetColor} ${timestamp} - ${message}`, data || '');
   }
 
-  info(message: string, meta?: any): void {
-    this.output(this.formatLog('info', message, meta));
+  info(message: string, data?: LogData) {
+    this.log('info', message, data);
   }
 
-  warn(message: string, meta?: any): void {
-    this.output(this.formatLog('warn', message, meta));
+  warn(message: string, data?: LogData) {
+    this.log('warn', message, data);
   }
 
-  error(message: string, meta?: any): void {
-    this.output(this.formatLog('error', message, meta));
+  error(message: string, data?: LogData) {
+    this.log('error', message, data);
   }
 
-  debug(message: string, meta?: any): void {
+  debug(message: string, data?: LogData) {
     if (process.env.NODE_ENV === 'development') {
-      this.output(this.formatLog('debug', message, meta));
+      this.log('debug', message, data);
     }
   }
 }
