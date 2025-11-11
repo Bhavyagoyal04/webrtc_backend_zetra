@@ -5,21 +5,26 @@ import { AuthRequest } from '../middleware/auth';
 import logger from '../utils/logger';
 import mongoose from 'mongoose';
 
+// Create a new room and add the creator as the first participant
 export const createRoom = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    // Ensure user is authenticated
     if (!req.userId) {
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
 
-    const roomId = uuidv4();
-    
+    // Validate user ID format
     if (!mongoose.Types.ObjectId.isValid(req.userId)) {
       logger.error('Invalid user ID format', { userId: req.userId });
       res.status(400).json({ error: 'Invalid user ID' });
       return;
     }
 
+    // Generate unique room ID
+    const roomId = uuidv4();
+
+    // Create new room with the current user as a participant
     const room = new Room({
       roomId,
       participants: [new mongoose.Types.ObjectId(req.userId)],
@@ -27,7 +32,6 @@ export const createRoom = async (req: AuthRequest, res: Response): Promise<void>
     });
 
     await room.save();
-
     logger.info('Room created successfully', { roomId, userId: req.userId });
 
     res.status(201).json({
@@ -40,15 +44,18 @@ export const createRoom = async (req: AuthRequest, res: Response): Promise<void>
   }
 };
 
+// Allow a user to join an existing active room
 export const joinRoom = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { roomId } = req.params;
 
+    // Ensure user is authenticated
     if (!req.userId) {
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
 
+    // Validate roomId and userId formats
     if (!roomId) {
       res.status(400).json({ error: 'Room ID is required' });
       return;
@@ -60,6 +67,7 @@ export const joinRoom = async (req: AuthRequest, res: Response): Promise<void> =
       return;
     }
 
+    // Find active room by roomId
     const room = await Room.findOne({ roomId, active: true });
     if (!room) {
       logger.warn('Attempt to join non-existent or inactive room', { roomId, userId: req.userId });
@@ -67,6 +75,7 @@ export const joinRoom = async (req: AuthRequest, res: Response): Promise<void> =
       return;
     }
 
+    // Add user to participants if not already joined
     const userObjectId = new mongoose.Types.ObjectId(req.userId);
     const isParticipant = room.participants.some(
       (participantId) => participantId.toString() === req.userId
